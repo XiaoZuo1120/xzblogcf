@@ -1,0 +1,832 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="小左1120">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="用python爬取酷狗（网易云）音乐（此文为小左1120原创，转载请标明出处，如违规请联系作者立刻删除）此文为python爬虫文章，讲了用python爬取某狗里的歌名并下载（包括vip）后面带exe 2020&#x2F;8&#x2F;5 由于本人爬虫经验不足，代码可能会粗糙，有bug，麻烦大佬加个微信QQ一起学吧！代码失效了也给我通知一声（图片如果显示不出来的话请多次刷新，若问题仍存在，请告诉我换">
+<meta property="og:type" content="article">
+<meta property="og:title" content="用python爬取酷狗（网易云）音乐">
+<meta property="og:url" content="https://xiaozuo1120.pages.dev/2020/08/05/%E7%94%A8python%E7%88%AC%E5%8F%96%E9%85%B7%E7%8B%97%E9%9F%B3%E4%B9%90/index.html">
+<meta property="og:site_name" content="小左1120的博客">
+<meta property="og:description" content="用python爬取酷狗（网易云）音乐（此文为小左1120原创，转载请标明出处，如违规请联系作者立刻删除）此文为python爬虫文章，讲了用python爬取某狗里的歌名并下载（包括vip）后面带exe 2020&#x2F;8&#x2F;5 由于本人爬虫经验不足，代码可能会粗糙，有bug，麻烦大佬加个微信QQ一起学吧！代码失效了也给我通知一声（图片如果显示不出来的话请多次刷新，若问题仍存在，请告诉我换">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://cdn.jsdmirror.com/gh/XiaoZuo1120/xzblog/5/1.jpg">
+<meta property="og:image" content="https://cdn.jsdmirror.com/gh/XiaoZuo1120/xzblog/5/2.png">
+<meta property="og:image" content="https://cdn.jsdmirror.com/gh/XiaoZuo1120/xzblog/5/3.png">
+<meta property="og:image" content="https://cdn.jsdmirror.com/gh/XiaoZuo1120/xzblog/5/4.png">
+<meta property="og:image" content="https://cdn.jsdmirror.com/gh/XiaoZuo1120/xzblog/5/5.png">
+<meta property="og:image" content="https://cdn.jsdmirror.com/gh/XiaoZuo1120/xzblog/5/6.png">
+<meta property="og:image" content="https://cdn.jsdmirror.com/gh/XiaoZuo1120/xzblog/5/7.png">
+<meta property="og:image" content="https://cdn.jsdmirror.com/gh/XiaoZuo1120/xzblog/5/8.png">
+<meta property="og:image" content="https://cdn.jsdmirror.com/gh/XiaoZuo1120/xzblog/5/9.png">
+<meta property="article:published_time" content="2020-08-05T13:43:42.000Z">
+<meta property="article:modified_time" content="2025-07-11T16:17:11.857Z">
+<meta property="article:author" content="小左1120">
+<meta property="article:tag" content="小学时代">
+<meta property="article:tag" content="Python">
+<meta property="article:tag" content="爬虫">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://cdn.jsdmirror.com/gh/XiaoZuo1120/xzblog/5/1.jpg">
+  
+  
+  
+    <script charset="UTF-8" id="LA_COLLECT" src="//sdk.51.la/js-sdk-pro.min.js"></script> <script>LA.init({id:"3MmglXzAwQRB1m3D",ck:"3MmglXzAwQRB1m3D"})</script>
+  
+  <title>用python爬取酷狗（网易云）音乐 - 小左1120的博客</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1736178_k526ubmyhba.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+  
+<link rel="stylesheet" href="//cdn.jsdmirror.com/gh/XiaoZuo1120/texiao/source/css/gundongtiao.css">
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"xiaozuo1120.pages.dev","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":"75abd69ebce9fff456a0240b9e63e4ce","google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+    <!-- Baidu Analytics -->
+    <script async>
+      if (!Fluid.ctx.dnt) {
+        var _hmt = _hmt || [];
+        (function() {
+          var hm = document.createElement("script");
+          hm.src = "https://hm.baidu.com/hm.js?75abd69ebce9fff456a0240b9e63e4ce";
+          var s = document.getElementsByTagName("script")[0];
+          s.parentNode.insertBefore(hm, s);
+        })();
+      }
+    </script>
+  
+
+  
+
+  
+
+  
+
+  
+
+
+
+  
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>小左1120的博客</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/links/" target="_self">
+                <i class="iconfont icon-link-fill"></i>
+                <span>友链</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('https://cdn.jsdmirror.com/gh/XiaoZuo1120/XiaoZuo1120.github.io/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="用python爬取酷狗（网易云）音乐"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2020-08-05 21:43" pubdate>
+          2020年8月5日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          2.9k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          25 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">用python爬取酷狗（网易云）音乐</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h2 id="用python爬取酷狗（网易云）音乐"><a href="#用python爬取酷狗（网易云）音乐" class="headerlink" title="用python爬取酷狗（网易云）音乐"></a>用python爬取酷狗（网易云）音乐</h2><p>（此文为小左1120原创，转载请标明出处，如违规请联系作者立刻删除）<br>此文为python爬虫文章，讲了用python爬取某狗里的歌名并下载（包括vip）后面带exe<br><img src="https://cdn.jsdmirror.com/gh/XiaoZuo1120/xzblog/5/1.jpg" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+<p>2020&#x2F;8&#x2F;5</p>
+<p>由于本人爬虫经验不足，代码可能会粗糙，有bug，麻烦大佬加个微信QQ一起学吧！代码失效了也给我通知一声（图片如果显示不出来的话请多次刷新，若问题仍存在，请告诉我换源）<br>微信：aicoder-XZ<br>QQ：2583188733<br>老规矩<br><a target="_blank" rel="noopener" href="https://xiaozuo1120.github.io/post/%E5%AE%89%E8%A3%85python%E5%8F%8A%E9%85%8D%E7%BD%AEpip%E5%8A%A0%E9%80%9F%E4%BF%9D%E5%A7%86%E7%BA%A7%E6%95%99%E7%A8%8B.html">配置好python</a><br><a target="_blank" rel="noopener" href="https://xiaozuo1120.github.io/post/pycharm%E8%AF%A6%E7%BB%86%E5%AE%89%E8%A3%85%E6%95%99%E7%A8%8B.html">配置好pycharm</a><br>再安装依赖的模块：<br><a target="_blank" rel="noopener" href="https://blog.csdn.net/weixin_45910254/article/details/129426479">点这里</a>（感谢大神的文章）<br>接下来，按下win+R输入cmd-回车！在窗口里输入</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs python">pip install requests selenium<br></code></pre></td></tr></table></figure>
+
+<p>打开pycharm，<br>新建项目，（<a target="_blank" rel="noopener" href="https://xiaozuo1120.github.io/post/pycharm%E8%AF%A6%E7%BB%86%E5%AE%89%E8%A3%85%E6%95%99%E7%A8%8B.html">不会的话点这里</a>）<br>进去后，右键文件夹，<br><img src="https://cdn.jsdmirror.com/gh/XiaoZuo1120/xzblog/5/2.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"><br>输入个你喜欢的名字，回车！</p>
+<p>开始写代码吧！<br>先打开浏览器<br>访问<a target="_blank" rel="noopener" href="https://music.liuzhijin.cn/">某狗音乐下载</a>（不要用ie）<br><img src="https://cdn.jsdmirror.com/gh/XiaoZuo1120/xzblog/5/3.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+<p>随便搜索搜索看看网址<br>以《癞蛤蟆》为例<br>网址是</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs html">https://music.liuzhijin.cn/?name=癞蛤蟆&amp;type=kugou<br></code></pre></td></tr></table></figure>
+<p>所以搜索的格式是</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs javascript"><span class="hljs-attr">https</span>:<span class="hljs-comment">//music.liuzhijin.cn/?name=歌曲名&amp;type=kugou</span><br></code></pre></td></tr></table></figure>
+<p>好，咱先爬：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">from</span> selenium <span class="hljs-keyword">import</span> webdriver<br><span class="hljs-keyword">import</span> time<br><br>name = <span class="hljs-built_in">input</span>(<span class="hljs-string">&quot;&gt;&quot;</span>)<br>url = <span class="hljs-string">&quot;https://music.liuzhijin.cn/?name=&quot;</span> + name + <span class="hljs-string">&quot;&amp;type=kugou&quot;</span><br>browser = webdriver.Firefox()<br>browser.get(url)<br></code></pre></td></tr></table></figure>
+
+<p>这个网站有一点问题，底下有个载入更多，不能直接全部加载，<br>没有事的。。<br>按下F12<br>在出来的控制台的左上角点这个按钮<br><img src="https://cdn.jsdmirror.com/gh/XiaoZuo1120/xzblog/5/4.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"><br>点击载入更多</p>
+<p>ok，浏览器会定位到这样一条元素，</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs html"><span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">&quot;aplayer-more&quot;</span>&gt;</span>载入更多<span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span><br></code></pre></td></tr></table></figure>
+<p>右击-复制-完整的XPath（火狐是XPath）<br><img src="https://cdn.jsdmirror.com/gh/XiaoZuo1120/xzblog/5/5.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"><br><img src="https://cdn.jsdmirror.com/gh/XiaoZuo1120/xzblog/5/6.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+<p>好</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">from</span> selenium <span class="hljs-keyword">import</span> webdriver<br><span class="hljs-keyword">import</span> time<br><br>name = <span class="hljs-built_in">input</span>(<span class="hljs-string">&quot;&gt;&quot;</span>)<br>url = <span class="hljs-string">&quot;https://music.liuzhijin.cn/?name=&quot;</span> + name + <span class="hljs-string">&quot;&amp;type=kugou&quot;</span><br>browser = webdriver.Firefox()<br>browser.get(url)<br>time.sleep(<span class="hljs-number">3</span>)<br><span class="hljs-keyword">while</span> <span class="hljs-literal">True</span>:<br>    <span class="hljs-keyword">try</span>:<br>        browser.find_element_by_xpath(<span class="hljs-string">&quot;你的XPath&quot;</span>).click()<br>    <span class="hljs-keyword">except</span>:<br>        <span class="hljs-keyword">break</span><br><br></code></pre></td></tr></table></figure>
+<p>我的是<code>/html/body/section/div[1]/div/form[2]/div[4]/div/div[4]</code><br>所以就是</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">from</span> selenium <span class="hljs-keyword">import</span> webdriver<br><span class="hljs-keyword">import</span> time<br><br>name = <span class="hljs-built_in">input</span>(<span class="hljs-string">&quot;&gt;&quot;</span>)<br>url = <span class="hljs-string">&quot;https://music.liuzhijin.cn/?name=&quot;</span> + name + <span class="hljs-string">&quot;&amp;type=kugou&quot;</span><br>browser = webdriver.Firefox()<br>browser.get(url)<br>time.sleep(<span class="hljs-number">3</span>)<br><span class="hljs-keyword">while</span> <span class="hljs-literal">True</span>:<br>    <span class="hljs-keyword">try</span>:<br>        browser.find_element_by_xpath(<span class="hljs-string">&quot;/html/body/section/div[1]/div/form[2]/div[4]/div/div[4]&quot;</span>).click()<br>    <span class="hljs-keyword">except</span>:<br>        <span class="hljs-keyword">break</span><br><br></code></pre></td></tr></table></figure>
+
+<p>一切就绪，获取网页源代码</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs python">html = browser.page_source<br></code></pre></td></tr></table></figure>
+<p>控制台上看一看</p>
+<p>看到一大堆li<br><img src="https://cdn.jsdmirror.com/gh/XiaoZuo1120/xzblog/5/7.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+<p>挑一个（我搜索的Mojito）</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs html"><span class="hljs-tag">&lt;<span class="hljs-name">li</span>&gt;</span><br>                        <span class="hljs-tag">&lt;<span class="hljs-name">span</span> <span class="hljs-attr">class</span>=<span class="hljs-string">&quot;aplayer-list-cur&quot;</span> <span class="hljs-attr">style</span>=<span class="hljs-string">&quot;background: #0e90d2;&quot;</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">span</span>&gt;</span><br>                        <span class="hljs-tag">&lt;<span class="hljs-name">span</span> <span class="hljs-attr">class</span>=<span class="hljs-string">&quot;aplayer-list-index&quot;</span>&gt;</span>2<span class="hljs-tag">&lt;/<span class="hljs-name">span</span>&gt;</span><br>                        <span class="hljs-tag">&lt;<span class="hljs-name">span</span> <span class="hljs-attr">class</span>=<span class="hljs-string">&quot;aplayer-list-title&quot;</span>&gt;</span>Mojito<span class="hljs-tag">&lt;/<span class="hljs-name">span</span>&gt;</span><br>                        <span class="hljs-tag">&lt;<span class="hljs-name">span</span> <span class="hljs-attr">class</span>=<span class="hljs-string">&quot;aplayer-list-author&quot;</span>&gt;</span>许66<span class="hljs-tag">&lt;/<span class="hljs-name">span</span>&gt;</span><br>                    <span class="hljs-tag">&lt;/<span class="hljs-name">li</span>&gt;</span><br>                    <span class="hljs-tag">&lt;<span class="hljs-name">li</span>&gt;</span><br>                        <span class="hljs-tag">&lt;<span class="hljs-name">span</span> <span class="hljs-attr">class</span>=<span class="hljs-string">&quot;aplayer-list-cur&quot;</span> <span class="hljs-attr">style</span>=<span class="hljs-string">&quot;background: #0e90d2;&quot;</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">span</span>&gt;</span><br>                        <span class="hljs-tag">&lt;<span class="hljs-name">span</span> <span class="hljs-attr">class</span>=<span class="hljs-string">&quot;aplayer-list-index&quot;</span>&gt;</span>3<span class="hljs-tag">&lt;/<span class="hljs-name">span</span>&gt;</span><br>                        <span class="hljs-tag">&lt;<span class="hljs-name">span</span> <span class="hljs-attr">class</span>=<span class="hljs-string">&quot;aplayer-list-title&quot;</span>&gt;</span>Mojito<span class="hljs-tag">&lt;/<span class="hljs-name">span</span>&gt;</span><br>                        <span class="hljs-tag">&lt;<span class="hljs-name">span</span> <span class="hljs-attr">class</span>=<span class="hljs-string">&quot;aplayer-list-author&quot;</span>&gt;</span>音乐之声-SongTaste<span class="hljs-tag">&lt;/<span class="hljs-name">span</span>&gt;</span><br>                    <span class="hljs-tag">&lt;/<span class="hljs-name">li</span>&gt;</span><br></code></pre></td></tr></table></figure>
+
+<p>经过阅读知道</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs html"><span class="hljs-tag">&lt;<span class="hljs-name">li</span>&gt;</span><br>                        <span class="hljs-tag">&lt;<span class="hljs-name">span</span> <span class="hljs-attr">class</span>=<span class="hljs-string">&quot;aplayer-list-cur&quot;</span> <span class="hljs-attr">style</span>=<span class="hljs-string">&quot;background: #0e90d2;&quot;</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">span</span>&gt;</span><br>                        <span class="hljs-tag">&lt;<span class="hljs-name">span</span> <span class="hljs-attr">class</span>=<span class="hljs-string">&quot;aplayer-list-index&quot;</span>&gt;</span>歌曲排名<span class="hljs-tag">&lt;/<span class="hljs-name">span</span>&gt;</span><br>                        <span class="hljs-tag">&lt;<span class="hljs-name">span</span> <span class="hljs-attr">class</span>=<span class="hljs-string">&quot;aplayer-list-title&quot;</span>&gt;</span>歌曲名<span class="hljs-tag">&lt;/<span class="hljs-name">span</span>&gt;</span><br>                        <span class="hljs-tag">&lt;<span class="hljs-name">span</span> <span class="hljs-attr">class</span>=<span class="hljs-string">&quot;aplayer-list-author&quot;</span>&gt;</span>歌手<span class="hljs-tag">&lt;/<span class="hljs-name">span</span>&gt;</span><br><span class="hljs-tag">&lt;/<span class="hljs-name">li</span>&gt;</span><br></code></pre></td></tr></table></figure>
+<p> 呵呵呵，我们用正则表达式提取一下，顺便封装成方法</p>
+<p><img src="https://cdn.jsdmirror.com/gh/XiaoZuo1120/xzblog/5/8.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-comment">#coding:utf-8</span><br><span class="hljs-keyword">from</span> selenium <span class="hljs-keyword">import</span> webdriver<br><span class="hljs-keyword">import</span> time,re<br>name = <span class="hljs-built_in">input</span>(<span class="hljs-string">&quot;&gt;&quot;</span>)<br>url = <span class="hljs-string">&quot;https://music.liuzhijin.cn/?name=&quot;</span> + name + <span class="hljs-string">&quot;&amp;type=kugou&quot;</span><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">geturl</span>(<span class="hljs-params">url</span>):<br>    browser = webdriver.Firefox()<br>    browser.get(url)<br>    time.sleep(<span class="hljs-number">3</span>)<br>    <span class="hljs-keyword">while</span> <span class="hljs-literal">True</span>:<br>        <span class="hljs-keyword">try</span>:<br>            browser.find_element_by_xpath(<span class="hljs-string">&quot;/html/body/section/div[1]/div/form[2]/div[4]/div/div[4]&quot;</span>).click()<br>        <span class="hljs-keyword">except</span>:<br>            <span class="hljs-keyword">break</span><br>    <span class="hljs-keyword">return</span> browser.page_source<br>html = geturl(url)<br>a111 = <span class="hljs-string">&#x27;&#x27;&#x27;&lt;li class=&quot;aplayer-list-light&quot;&gt;</span><br><span class="hljs-string">                        &lt;span class=&quot;aplayer-list-cur&quot; style=&quot;background: #0e90d2;&quot;&gt;&lt;/span&gt;</span><br><span class="hljs-string">                        &lt;span class=&quot;aplayer-list-index&quot;&gt;(.*?)&lt;/span&gt;</span><br><span class="hljs-string">                        &lt;span class=&quot;aplayer-list-title&quot;&gt;(.*?)&lt;/span&gt;</span><br><span class="hljs-string">                        &lt;span class=&quot;aplayer-list-author&quot;&gt;(.*?)&lt;/span&gt;</span><br><span class="hljs-string">                    &lt;/li&gt;</span><br><span class="hljs-string">&#x27;&#x27;&#x27;</span><br>a11=<span class="hljs-string">&#x27;&#x27;&#x27;&lt;li&gt;</span><br><span class="hljs-string">                        &lt;span class=&quot;aplayer-list-cur&quot; style=&quot;background: .*?;&quot;&gt;&lt;/span&gt;</span><br><span class="hljs-string">                        &lt;span class=&quot;aplayer-list-index&quot;&gt;(.*?)&lt;/span&gt;</span><br><span class="hljs-string">                        &lt;span class=&quot;aplayer-list-title&quot;&gt;(.*?)&lt;/span&gt;</span><br><span class="hljs-string">                        &lt;span class=&quot;aplayer-list-author&quot;&gt;(.*?)&lt;/span&gt;</span><br><span class="hljs-string">                    &lt;/li&gt;&#x27;&#x27;&#x27;</span><br>a=<span class="hljs-string">&#x27;&#x27;&#x27;&lt;li&gt;</span><br><span class="hljs-string">                    &lt;span class=&quot;aplayer-list-cur&quot; style=&quot;background:.*?;&quot;&gt;&lt;/span&gt;</span><br><span class="hljs-string">                    &lt;span class=&quot;aplayer-list-index&quot;&gt;(.*?)&lt;/span&gt;</span><br><span class="hljs-string">                    &lt;span class=&quot;aplayer-list-title&quot;&gt;(.*?)&lt;/span&gt;</span><br><span class="hljs-string">                    &lt;span class=&quot;aplayer-list-author&quot;&gt;(.*?)&lt;/span&gt;</span><br><span class="hljs-string">                &lt;/li&gt;&#x27;&#x27;&#x27;</span><br>a1=re.findall(a111,html)<br>b1 = re.findall(a11,html)<br>b2=re.findall(a,html)<br>data = a1+b1+b2<br></code></pre></td></tr></table></figure>
+
+<p>加上选择</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-comment">#coding:utf-8</span><br><span class="hljs-keyword">from</span> selenium <span class="hljs-keyword">import</span> webdriver<br><span class="hljs-keyword">import</span> time,re<br>name = <span class="hljs-built_in">input</span>(<span class="hljs-string">&quot;&gt;&quot;</span>)<br>url = <span class="hljs-string">&quot;https://music.liuzhijin.cn/?name=&quot;</span> + name + <span class="hljs-string">&quot;&amp;type=kugou&quot;</span><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">geturl</span>(<span class="hljs-params">url</span>):<br>    browser = webdriver.Firefox()<br>    browser.get(url)<br>    time.sleep(<span class="hljs-number">3</span>)<br>    <span class="hljs-keyword">while</span> <span class="hljs-literal">True</span>:<br>        <span class="hljs-keyword">try</span>:<br>            browser.find_element_by_xpath(<span class="hljs-string">&quot;/html/body/section/div[1]/div/form[2]/div[4]/div/div[4]&quot;</span>).click()<br>        <span class="hljs-keyword">except</span>:<br>            <span class="hljs-keyword">break</span><br>    <span class="hljs-keyword">return</span> browser.page_source<br>html = geturl(url)<br>a111 = <span class="hljs-string">&#x27;&#x27;&#x27;&lt;li class=&quot;aplayer-list-light&quot;&gt;</span><br><span class="hljs-string">                        &lt;span class=&quot;aplayer-list-cur&quot; style=&quot;background: #0e90d2;&quot;&gt;&lt;/span&gt;</span><br><span class="hljs-string">                        &lt;span class=&quot;aplayer-list-index&quot;&gt;(.*?)&lt;/span&gt;</span><br><span class="hljs-string">                        &lt;span class=&quot;aplayer-list-title&quot;&gt;(.*?)&lt;/span&gt;</span><br><span class="hljs-string">                        &lt;span class=&quot;aplayer-list-author&quot;&gt;(.*?)&lt;/span&gt;</span><br><span class="hljs-string">                    &lt;/li&gt;</span><br><span class="hljs-string">&#x27;&#x27;&#x27;</span><br>a11=<span class="hljs-string">&#x27;&#x27;&#x27;&lt;li&gt;</span><br><span class="hljs-string">                        &lt;span class=&quot;aplayer-list-cur&quot; style=&quot;background: .*?;&quot;&gt;&lt;/span&gt;</span><br><span class="hljs-string">                        &lt;span class=&quot;aplayer-list-index&quot;&gt;(.*?)&lt;/span&gt;</span><br><span class="hljs-string">                        &lt;span class=&quot;aplayer-list-title&quot;&gt;(.*?)&lt;/span&gt;</span><br><span class="hljs-string">                        &lt;span class=&quot;aplayer-list-author&quot;&gt;(.*?)&lt;/span&gt;</span><br><span class="hljs-string">                    &lt;/li&gt;&#x27;&#x27;&#x27;</span><br>a=<span class="hljs-string">&#x27;&#x27;&#x27;&lt;li&gt;</span><br><span class="hljs-string">                    &lt;span class=&quot;aplayer-list-cur&quot; style=&quot;background:.*?;&quot;&gt;&lt;/span&gt;</span><br><span class="hljs-string">                    &lt;span class=&quot;aplayer-list-index&quot;&gt;(.*?)&lt;/span&gt;</span><br><span class="hljs-string">                    &lt;span class=&quot;aplayer-list-title&quot;&gt;(.*?)&lt;/span&gt;</span><br><span class="hljs-string">                    &lt;span class=&quot;aplayer-list-author&quot;&gt;(.*?)&lt;/span&gt;</span><br><span class="hljs-string">                &lt;/li&gt;&#x27;&#x27;&#x27;</span><br>a1=re.findall(a111,html)<br>b1 = re.findall(a11,html)<br>b2=re.findall(a,html)<br>data = a1+b1+b2<br>song = <span class="hljs-number">0</span><br><span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> data:<br>    <span class="hljs-built_in">print</span>(i)<br>num = <span class="hljs-built_in">input</span>(<span class="hljs-string">&quot;&gt;&gt;&quot;</span>)<br><span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> data:<br>    <span class="hljs-keyword">if</span> (<span class="hljs-built_in">str</span>(i[<span class="hljs-number">0</span>])==num):<br>        song = i<br>url = <span class="hljs-string">&quot;https://music.liuzhijin.cn/?name=&quot;</span> + song[<span class="hljs-number">1</span>]+<span class="hljs-string">&#x27; - &#x27;</span>+song[<span class="hljs-number">2</span>] + <span class="hljs-string">&quot;&amp;type=kugou&quot;</span><br><span class="hljs-built_in">print</span>(geturl(url))<br></code></pre></td></tr></table></figure>
+<p>看下载链接的位置的代码是</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs python">&lt;span <span class="hljs-keyword">class</span>=<span class="hljs-string">&quot;am-input-group-btn&quot;</span>&gt;<br>                                    &lt;a <span class="hljs-built_in">id</span>=<span class="hljs-string">&quot;j-src-btn&quot;</span> <span class="hljs-keyword">class</span>=<span class="hljs-string">&quot;am-btn am-btn-default&quot;</span> target=<span class="hljs-string">&quot;_blank&quot;</span> href=<span class="hljs-string">&quot;(.*?)&quot;</span> download=<span class="hljs-string">&quot;(.*?)&quot;</span>&gt;<br>                                        &lt;i <span class="hljs-built_in">id</span>=<span class="hljs-string">&quot;j-src-btn-icon&quot;</span> <span class="hljs-keyword">class</span>=<span class="hljs-string">&quot;am-icon-download&quot;</span>&gt;&lt;/i&gt;<br>                                    &lt;/a&gt;<br>                                &lt;/span&gt;<br></code></pre></td></tr></table></figure>
+<p>我们通过搜索歌曲名 - 歌手来搜索并下载</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-comment">#coding:utf-8</span><br><span class="hljs-keyword">from</span> selenium <span class="hljs-keyword">import</span> webdriver<br><span class="hljs-keyword">import</span> time,re,requests<br>name = <span class="hljs-built_in">input</span>(<span class="hljs-string">&quot;&gt;&quot;</span>)<br>url = <span class="hljs-string">&quot;https://music.liuzhijin.cn/?name=&quot;</span> + name + <span class="hljs-string">&quot;&amp;type=kugou&quot;</span><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">geturl</span>(<span class="hljs-params">url</span>):<br>    browser = webdriver.Firefox()<br>    browser.get(url)<br>    time.sleep(<span class="hljs-number">3</span>)<br>    <span class="hljs-keyword">while</span> <span class="hljs-literal">True</span>:<br>        <span class="hljs-keyword">try</span>:<br>            browser.find_element_by_xpath(<span class="hljs-string">&quot;/html/body/section/div[1]/div/form[2]/div[4]/div/div[4]&quot;</span>).click()<br>        <span class="hljs-keyword">except</span>:<br>            <span class="hljs-keyword">break</span><br>    <span class="hljs-keyword">return</span> browser.page_source<br>html = geturl(url)<br>a111 = <span class="hljs-string">&#x27;&#x27;&#x27;&lt;li class=&quot;aplayer-list-light&quot;&gt;</span><br><span class="hljs-string">                        &lt;span class=&quot;aplayer-list-cur&quot; style=&quot;background: #0e90d2;&quot;&gt;&lt;/span&gt;</span><br><span class="hljs-string">                        &lt;span class=&quot;aplayer-list-index&quot;&gt;(.*?)&lt;/span&gt;</span><br><span class="hljs-string">                        &lt;span class=&quot;aplayer-list-title&quot;&gt;(.*?)&lt;/span&gt;</span><br><span class="hljs-string">                        &lt;span class=&quot;aplayer-list-author&quot;&gt;(.*?)&lt;/span&gt;</span><br><span class="hljs-string">                    &lt;/li&gt;</span><br><span class="hljs-string">&#x27;&#x27;&#x27;</span><br>a11=<span class="hljs-string">&#x27;&#x27;&#x27;&lt;li&gt;</span><br><span class="hljs-string">                        &lt;span class=&quot;aplayer-list-cur&quot; style=&quot;background: .*?;&quot;&gt;&lt;/span&gt;</span><br><span class="hljs-string">                        &lt;span class=&quot;aplayer-list-index&quot;&gt;(.*?)&lt;/span&gt;</span><br><span class="hljs-string">                        &lt;span class=&quot;aplayer-list-title&quot;&gt;(.*?)&lt;/span&gt;</span><br><span class="hljs-string">                        &lt;span class=&quot;aplayer-list-author&quot;&gt;(.*?)&lt;/span&gt;</span><br><span class="hljs-string">                    &lt;/li&gt;&#x27;&#x27;&#x27;</span><br>a=<span class="hljs-string">&#x27;&#x27;&#x27;&lt;li&gt;</span><br><span class="hljs-string">                    &lt;span class=&quot;aplayer-list-cur&quot; style=&quot;background:.*?;&quot;&gt;&lt;/span&gt;</span><br><span class="hljs-string">                    &lt;span class=&quot;aplayer-list-index&quot;&gt;(.*?)&lt;/span&gt;</span><br><span class="hljs-string">                    &lt;span class=&quot;aplayer-list-title&quot;&gt;(.*?)&lt;/span&gt;</span><br><span class="hljs-string">                    &lt;span class=&quot;aplayer-list-author&quot;&gt;(.*?)&lt;/span&gt;</span><br><span class="hljs-string">                &lt;/li&gt;&#x27;&#x27;&#x27;</span><br>a1=re.findall(a111,html)<br>b1 = re.findall(a11,html)<br>b2=re.findall(a,html)<br>data = a1+b1+b2<br>song = <span class="hljs-number">0</span><br><span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> data:<br>    <span class="hljs-built_in">print</span>(i)<br>num = <span class="hljs-built_in">input</span>(<span class="hljs-string">&quot;&gt;&gt;&quot;</span>)<br><span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> data:<br>    <span class="hljs-keyword">if</span> (<span class="hljs-built_in">str</span>(i[<span class="hljs-number">0</span>])==num):<br>        song = i<br>url1 = <span class="hljs-string">&quot;https://music.liuzhijin.cn/?name=&quot;</span> + song[<span class="hljs-number">1</span>]+<span class="hljs-string">&#x27; - &#x27;</span>+song[<span class="hljs-number">2</span>] + <span class="hljs-string">&quot;&amp;type=kugou&quot;</span><br>a7=<span class="hljs-string">&#x27;&#x27;&#x27;&lt;span class=&quot;am-input-group-btn&quot;&gt;</span><br><span class="hljs-string">                                    &lt;a id=&quot;j-src-btn&quot; class=&quot;am-btn am-btn-default&quot; target=&quot;_blank&quot; href=&quot;(.*?)&quot; download=&quot;(.*?)&quot;&gt;</span><br><span class="hljs-string">                                        &lt;i id=&quot;j-src-btn-icon&quot; class=&quot;am-icon-download&quot;&gt;&lt;/i&gt;</span><br><span class="hljs-string">                                    &lt;/a&gt;</span><br><span class="hljs-string">                                &lt;/span&gt;</span><br><span class="hljs-string">&#x27;&#x27;&#x27;</span><br>html1=geturl(url1)<br>a8 = re.findall(a7,html1)<br>r = requests.get(a8[<span class="hljs-number">0</span>][<span class="hljs-number">0</span>])<br><span class="hljs-keyword">with</span> <span class="hljs-built_in">open</span>(a8[<span class="hljs-number">0</span>][<span class="hljs-number">1</span>], <span class="hljs-string">&quot;wb&quot;</span>) <span class="hljs-keyword">as</span> code:<br>    code.write(r.content)<br></code></pre></td></tr></table></figure>
+<p>接下来是优化环节：<br>我发现，用这东西乱蹦浏览器，我们使用无头模式，再加一个循环</p>
+<p><strong>完整代码</strong></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-comment">#coding:utf-8</span><br><span class="hljs-keyword">from</span> selenium <span class="hljs-keyword">import</span> webdriver<br><span class="hljs-keyword">import</span> time,re,requests<br><span class="hljs-keyword">while</span> <span class="hljs-literal">True</span>:<br>    name = <span class="hljs-built_in">input</span>(<span class="hljs-string">&quot;输入你想下载的歌曲名并按下回车（不输入并按下回车退出）:&quot;</span>)<br>    <span class="hljs-keyword">if</span> (name==<span class="hljs-string">&#x27;&#x27;</span>):<br>        <span class="hljs-keyword">break</span><br>    <span class="hljs-keyword">else</span>:<br>        url = <span class="hljs-string">&quot;https://music.liuzhijin.cn/?name=&quot;</span> + name + <span class="hljs-string">&quot;&amp;type=kugou&quot;</span><br>        <span class="hljs-keyword">def</span> <span class="hljs-title function_">geturl</span>(<span class="hljs-params">url</span>):<br>            options = webdriver.FirefoxOptions()<br>            options.add_argument(<span class="hljs-string">&#x27;-headless&#x27;</span>)<br>            browser = webdriver.Firefox(options=options)<br>            browser.get(url)<br>            time.sleep(<span class="hljs-number">3</span>)<br>            <span class="hljs-keyword">while</span> <span class="hljs-literal">True</span>:<br>                <span class="hljs-keyword">try</span>:<br>                    browser.find_element_by_xpath(<span class="hljs-string">&quot;/html/body/section/div[1]/div/form[2]/div[4]/div/div[4]&quot;</span>).click()<br>                <span class="hljs-keyword">except</span>:<br>                    <span class="hljs-keyword">break</span><br>            temp = browser.page_source<br>            browser.close()<br>            <span class="hljs-keyword">return</span> temp<br>        html = geturl(url)<br>        a111 = <span class="hljs-string">&#x27;&#x27;&#x27;&lt;li class=&quot;aplayer-list-light&quot;&gt;</span><br><span class="hljs-string">                        &lt;span class=&quot;aplayer-list-cur&quot; style=&quot;background: #0e90d2;&quot;&gt;&lt;/span&gt;</span><br><span class="hljs-string">                        &lt;span class=&quot;aplayer-list-index&quot;&gt;(.*?)&lt;/span&gt;</span><br><span class="hljs-string">                        &lt;span class=&quot;aplayer-list-title&quot;&gt;(.*?)&lt;/span&gt;</span><br><span class="hljs-string">                        &lt;span class=&quot;aplayer-list-author&quot;&gt;(.*?)&lt;/span&gt;</span><br><span class="hljs-string">                    &lt;/li&gt;</span><br><span class="hljs-string">        &#x27;&#x27;&#x27;</span><br>        a11=<span class="hljs-string">&#x27;&#x27;&#x27;&lt;li&gt;</span><br><span class="hljs-string">                        &lt;span class=&quot;aplayer-list-cur&quot; style=&quot;background: .*?;&quot;&gt;&lt;/span&gt;</span><br><span class="hljs-string">                        &lt;span class=&quot;aplayer-list-index&quot;&gt;(.*?)&lt;/span&gt;</span><br><span class="hljs-string">                        &lt;span class=&quot;aplayer-list-title&quot;&gt;(.*?)&lt;/span&gt;</span><br><span class="hljs-string">                        &lt;span class=&quot;aplayer-list-author&quot;&gt;(.*?)&lt;/span&gt;</span><br><span class="hljs-string">                    &lt;/li&gt;&#x27;&#x27;&#x27;</span><br>        a=<span class="hljs-string">&#x27;&#x27;&#x27;&lt;li&gt;</span><br><span class="hljs-string">                    &lt;span class=&quot;aplayer-list-cur&quot; style=&quot;background:.*?;&quot;&gt;&lt;/span&gt;</span><br><span class="hljs-string">                    &lt;span class=&quot;aplayer-list-index&quot;&gt;(.*?)&lt;/span&gt;</span><br><span class="hljs-string">                    &lt;span class=&quot;aplayer-list-title&quot;&gt;(.*?)&lt;/span&gt;</span><br><span class="hljs-string">                    &lt;span class=&quot;aplayer-list-author&quot;&gt;(.*?)&lt;/span&gt;</span><br><span class="hljs-string">                &lt;/li&gt;&#x27;&#x27;&#x27;</span><br>        a1=re.findall(a111,html)<br>        b1 = re.findall(a11,html)<br>        b2=re.findall(a,html)<br>        data = a1+b1+b2<br>        song = <span class="hljs-number">0</span><br>        <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> data:<br>            <span class="hljs-built_in">print</span>(i)<br>        num = <span class="hljs-built_in">input</span>(<span class="hljs-string">&quot;请输入序号：&quot;</span>)<br>        <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> data:<br>            <span class="hljs-keyword">if</span> (<span class="hljs-built_in">str</span>(i[<span class="hljs-number">0</span>])==num):<br>                song = i<br>        url1 = <span class="hljs-string">&quot;https://music.liuzhijin.cn/?name=&quot;</span> + song[<span class="hljs-number">1</span>]+<span class="hljs-string">&#x27; - &#x27;</span>+song[<span class="hljs-number">2</span>] + <span class="hljs-string">&quot;&amp;type=kugou&quot;</span><br>        a7=<span class="hljs-string">&#x27;&#x27;&#x27;&lt;span class=&quot;am-input-group-btn&quot;&gt;</span><br><span class="hljs-string">                                    &lt;a id=&quot;j-src-btn&quot; class=&quot;am-btn am-btn-default&quot; target=&quot;_blank&quot; href=&quot;(.*?)&quot; download=&quot;(.*?)&quot;&gt;</span><br><span class="hljs-string">                                        &lt;i id=&quot;j-src-btn-icon&quot; class=&quot;am-icon-download&quot;&gt;&lt;/i&gt;</span><br><span class="hljs-string">                                    &lt;/a&gt;</span><br><span class="hljs-string">                                &lt;/span&gt;</span><br><span class="hljs-string">        &#x27;&#x27;&#x27;</span><br>        html1=geturl(url1)<br>        a8 = re.findall(a7,html1)<br>        r = requests.get(a8[<span class="hljs-number">0</span>][<span class="hljs-number">0</span>])<br>        <span class="hljs-keyword">with</span> <span class="hljs-built_in">open</span>(a8[<span class="hljs-number">0</span>][<span class="hljs-number">1</span>], <span class="hljs-string">&quot;wb&quot;</span>) <span class="hljs-keyword">as</span> code:<br>            code.write(r.content)<br></code></pre></td></tr></table></figure>
+<p>使用示例：<br><img src="https://cdn.jsdmirror.com/gh/XiaoZuo1120/xzblog/5/9.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+<p>exe文件下载地址：<a target="_blank" rel="noopener" href="https://www.jianguoyun.com/p/DcMuR8YQs7rYCBjy1rED">https://www.jianguoyun.com/p/DcMuR8YQs7rYCBjy1rED</a><br><strong>-小左1120</strong><br>这个程序费了我2天时间，求求你们点个赞，关个注呗</p>
+<p>2年后的补充：</p>
+<p>2022&#x2F;10&#x2F;4</p>
+<p>大家好！版本已经失效了，我学c++，python忘完了，不过壳子能用。全新代码：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-comment">#coding:utf-8</span><br><span class="hljs-keyword">from</span> selenium <span class="hljs-keyword">import</span> webdriver<br><span class="hljs-keyword">import</span> time,re,requests<br><span class="hljs-keyword">while</span> <span class="hljs-literal">True</span>:<br>    name = <span class="hljs-built_in">input</span>(<span class="hljs-string">&quot;输入你想下载的歌曲名并按下回车（不输入并按下回车退出）:&quot;</span>)<br>    <span class="hljs-keyword">if</span> (name==<span class="hljs-string">&#x27;&#x27;</span>):<br>        <span class="hljs-keyword">break</span><br>    <span class="hljs-keyword">else</span>:<br>        url = <span class="hljs-string">&quot;https://music.liuzhijin.cn/?name=&quot;</span> + name + <span class="hljs-string">&quot;&amp;type=netease&quot;</span><br>        <span class="hljs-keyword">def</span> <span class="hljs-title function_">geturl</span>(<span class="hljs-params">url</span>):<br>            options = webdriver.FirefoxOptions()<br>            options.add_argument(<span class="hljs-string">&#x27;-headless&#x27;</span>)<br>            browser = webdriver.Firefox(options=options)<br>            browser.get(url)<br>            time.sleep(<span class="hljs-number">3</span>)<br>            <span class="hljs-keyword">while</span> <span class="hljs-literal">True</span>:<br>                <span class="hljs-keyword">try</span>:<br>                    browser.find_element_by_xpath(<span class="hljs-string">&quot;/html/body/section/div[1]/div/form[2]/div[4]/div/div[4]&quot;</span>).click()<br>                <span class="hljs-keyword">except</span>:<br>                    <span class="hljs-keyword">break</span><br>            temp = browser.page_source<br>            browser.close()<br>            <span class="hljs-keyword">return</span> temp<br>        html = geturl(url)<br>        a111 = <span class="hljs-string">&#x27;&#x27;&#x27;&lt;li class=&quot;aplayer-list-light&quot;&gt;</span><br><span class="hljs-string">                        &lt;span class=&quot;aplayer-list-cur&quot; style=&quot;background: #0e90d2;&quot;&gt;&lt;/span&gt;</span><br><span class="hljs-string">                        &lt;span class=&quot;aplayer-list-index&quot;&gt;(.*?)&lt;/span&gt;</span><br><span class="hljs-string">                        &lt;span class=&quot;aplayer-list-title&quot;&gt;(.*?)&lt;/span&gt;</span><br><span class="hljs-string">                        &lt;span class=&quot;aplayer-list-author&quot;&gt;(.*?)&lt;/span&gt;</span><br><span class="hljs-string">                    &lt;/li&gt;</span><br><span class="hljs-string">        &#x27;&#x27;&#x27;</span><br>        a11=<span class="hljs-string">&#x27;&#x27;&#x27;&lt;li&gt;</span><br><span class="hljs-string">                        &lt;span class=&quot;aplayer-list-cur&quot; style=&quot;background: .*?;&quot;&gt;&lt;/span&gt;</span><br><span class="hljs-string">                        &lt;span class=&quot;aplayer-list-index&quot;&gt;(.*?)&lt;/span&gt;</span><br><span class="hljs-string">                        &lt;span class=&quot;aplayer-list-title&quot;&gt;(.*?)&lt;/span&gt;</span><br><span class="hljs-string">                        &lt;span class=&quot;aplayer-list-author&quot;&gt;(.*?)&lt;/span&gt;</span><br><span class="hljs-string">                    &lt;/li&gt;&#x27;&#x27;&#x27;</span><br>        a=<span class="hljs-string">&#x27;&#x27;&#x27;&lt;li&gt;</span><br><span class="hljs-string">                    &lt;span class=&quot;aplayer-list-cur&quot; style=&quot;background:.*?;&quot;&gt;&lt;/span&gt;</span><br><span class="hljs-string">                    &lt;span class=&quot;aplayer-list-index&quot;&gt;(.*?)&lt;/span&gt;</span><br><span class="hljs-string">                    &lt;span class=&quot;aplayer-list-title&quot;&gt;(.*?)&lt;/span&gt;</span><br><span class="hljs-string">                    &lt;span class=&quot;aplayer-list-author&quot;&gt;(.*?)&lt;/span&gt;</span><br><span class="hljs-string">                &lt;/li&gt;&#x27;&#x27;&#x27;</span><br>        a1=re.findall(a111,html)<br>        b1 = re.findall(a11,html)<br>        b2=re.findall(a,html)<br>        data = a1+b1+b2<br>        song = <span class="hljs-number">0</span><br>        <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> data:<br>            <span class="hljs-built_in">print</span>(i)<br>        num = <span class="hljs-built_in">input</span>(<span class="hljs-string">&quot;请输入序号：&quot;</span>)<br>        <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> data:<br>            <span class="hljs-keyword">if</span> (<span class="hljs-built_in">str</span>(i[<span class="hljs-number">0</span>])==num):<br>                song = i<br>        url1 = <span class="hljs-string">&quot;https://music.liuzhijin.cn/?name=&quot;</span> + song[<span class="hljs-number">1</span>]+<span class="hljs-string">&#x27; - &#x27;</span>+song[<span class="hljs-number">2</span>] + <span class="hljs-string">&quot;&amp;type=netease&quot;</span><br>        a7=<span class="hljs-string">&#x27;&#x27;&#x27;&lt;span class=&quot;am-input-group-btn&quot;&gt;</span><br><span class="hljs-string">                                    &lt;a id=&quot;j-src-btn&quot; class=&quot;am-btn am-btn-default&quot; target=&quot;_blank&quot; href=&quot;(.*?)&quot; download=&quot;(.*?)&quot;&gt;</span><br><span class="hljs-string">                                        &lt;i id=&quot;j-src-btn-icon&quot; class=&quot;am-icon-download&quot;&gt;&lt;/i&gt;</span><br><span class="hljs-string">                                    &lt;/a&gt;</span><br><span class="hljs-string">                                &lt;/span&gt;</span><br><span class="hljs-string">        &#x27;&#x27;&#x27;</span><br>        html1=geturl(url1)<br>        a8 = re.findall(a7,html1)<br>        r = requests.get(a8[<span class="hljs-number">0</span>][<span class="hljs-number">0</span>])<br>        <span class="hljs-keyword">with</span> <span class="hljs-built_in">open</span>(a8[<span class="hljs-number">0</span>][<span class="hljs-number">1</span>], <span class="hljs-string">&quot;wb&quot;</span>) <span class="hljs-keyword">as</span> code:<br>            code.write(r.content)<br><br></code></pre></td></tr></table></figure>
+
+<p>现在网站上酷狗失效了（网站上失效的，网站复原了，代码应该也有效）不过网易云还能用，网易云伺候！<br>写本文时 selenium版本3.141.0</p>
+<p>2023&#x2F;7&#x2F;28 更新</p>
+<p>现在代码仍可用，目前selenium版本4.10.0，火狐115.0.3 (32 位)，geckodriver版本0.33.0放于源码目录下运行，本代码应该不能下载vip曲目，望了解。</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E5%B0%8F%E5%AD%A6%E6%97%B6%E4%BB%A3/" class="category-chain-item">小学时代</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/%E5%B0%8F%E5%AD%A6%E6%97%B6%E4%BB%A3/Python/" class="category-chain-item">Python</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/%E5%B0%8F%E5%AD%A6%E6%97%B6%E4%BB%A3/Python/%E7%88%AC%E8%99%AB/" class="category-chain-item">爬虫</a>
+  
+  
+
+  
+
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E5%B0%8F%E5%AD%A6%E6%97%B6%E4%BB%A3/" class="print-no-link">#小学时代</a>
+      
+        <a href="/tags/Python/" class="print-no-link">#Python</a>
+      
+        <a href="/tags/%E7%88%AC%E8%99%AB/" class="print-no-link">#爬虫</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>用python爬取酷狗（网易云）音乐</div>
+      <div>https://xiaozuo1120.pages.dev/2020/08/05/用python爬取酷狗音乐/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>小左1120</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2020年8月5日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2020/10/06/Ubuntu%E5%8F%8C%E7%B3%BB%E7%BB%9F%E8%B6%85%E8%AF%A6%E7%BB%86%E5%AE%89%E8%A3%85%E8%BF%87%E7%A8%8B/" title="Ubuntu超详细安装过程">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Ubuntu超详细安装过程</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2020/07/28/pycharm%E8%AF%A6%E7%BB%86%E5%AE%89%E8%A3%85%E6%95%99%E7%A8%8B/" title="PythonIDE(pycharm)安装教程">
+                        <span class="hidden-mobile">PythonIDE(pycharm)安装教程</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  
+  
+    <article id="comments" lazyload>
+      
+    <div id="giscus" class="giscus"></div>
+    <script type="text/javascript">
+      Fluid.utils.loadComments('#giscus', function() {
+        var options = {"repo":"XiaoZuo1120/xzghgittalk","repo-id":"R_kgDOPLZQbA","category":"Announcements","category-id":"DIC_kwDOPLZQbM4Cs3Hn","theme-light":"light","theme-dark":"dark","mapping":"url","reactions-enabled":1,"emit-metadata":0,"input-position":"top","lang":"zh-CN"};
+        var attributes = {};
+        for (let option in options) {
+          if (!option.startsWith('theme-')) {
+            var key = option.startsWith('data-') ? option : 'data-' + option;
+            attributes[key] = options[option];
+          }
+        }
+        var light = 'light';
+        var dark = 'dark';
+        window.GiscusThemeLight = light;
+        window.GiscusThemeDark = dark;
+        attributes['data-theme'] = document.documentElement.getAttribute('data-user-color-scheme') === 'dark' ? dark : light;
+        for (let attribute in attributes) {
+          var value = attributes[attribute];
+          if (value === undefined || value === null || value === '') {
+            delete attributes[attribute];
+          }
+        }
+        var s = document.createElement('script');
+        s.setAttribute('src', 'https://giscus.app/client.js');
+        s.setAttribute('crossorigin', 'anonymous');
+        for (let attribute in attributes) {
+          s.setAttribute(attribute, attributes[attribute]);
+        }
+        var ss = document.getElementsByTagName('script');
+        var e = ss.length > 0 ? ss[ss.length - 1] : document.head || document.documentElement;
+        e.parentNode.insertBefore(s, e.nextSibling);
+      });
+    </script>
+    <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+    </article>
+  
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+      <div class="col-lg-7 mx-auto nopadding-x-md">
+        <div class="container custom mx-auto">
+          <script id="LA-DATA-WIDGET" crossorigin="anonymous" charset="UTF-8" src="https://v6-widget.51.la/v6/3MmglXzAwQRB1m3D/quote.js?theme=0&col=true&f=12&badge=icon_0&icon=center"></script>
+        </div>
+      </div>
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/5.0.0/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+  
+<script src="//cdn.jsdmirror.com/gh/XiaoZuo1120/texiao/source/js/caidai.js"></script>
+<script src="//cdn.jsdmirror.com/gh/XiaoZuo1120/texiao/source/js/jingtaisidai.js"></script>
+<script src="//cdn.jsdmirror.com/gh/XiaoZuo1120/texiao/source/js/xiantiao.js"></script>
+<script src="//cdn.jsdmirror.com/gh/XiaoZuo1120/texiao/source/js/xiaoxingxing.js"></script>
+<script src="//cdn.jsdmirror.com/gh/XiaoZuo1120/texiao/source/js/dianjichuzi.js"></script>
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
