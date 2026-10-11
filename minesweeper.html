@@ -1,0 +1,1440 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
+<title>复数扫雷</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+
+html,body{height:100%}
+
+body{
+  font:12px Tahoma,monospace;
+  background:#008080;
+  display:flex;justify-content:center;align-items:flex-start;
+  padding:20px;
+  min-height:100vh;
+  user-select:none;
+  -webkit-user-select:none;
+  -webkit-tap-highlight-color:transparent;
+  -webkit-touch-callout:none;
+  overscroll-behavior:contain;
+}
+
+/* ---------- 窗口 ---------- */
+.win{
+  background:#C0C0C0;
+  border:2px solid;
+  border-color:#DFDFDF #404040 #404040 #DFDFDF;
+  max-width:100%;
+}
+
+.tbar{
+  background:#000080;color:#FFF;
+  font:bold 12px Tahoma;
+  padding:2px 6px;
+  display:flex;justify-content:space-between;align-items:center;
+}
+.tbtns{display:flex;gap:1px}
+.tbtn{
+  width:16px;height:14px;background:#C0C0C0;
+  font:bold 9px Tahoma;
+  border:2px solid;border-color:#DFDFDF #404040 #404040 #DFDFDF;
+  display:flex;align-items:center;justify-content:center;
+}
+
+.mbar{display:flex;padding:1px 2px;border-bottom:1px solid #808080;flex-wrap:wrap}
+.mi{padding:2px 8px;cursor:pointer;font-size:12px;border-radius:0}
+.mi:hover{background:#000080;color:#FFF}
+.mi:active{background:#000080;color:#FFF}
+
+/* ---------- 设置面板 ---------- */
+.cfg{display:none;padding:8px;border-bottom:1px solid #808080}
+.cfg.open{display:block}
+.cfg-g{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+@media (max-width:600px){ .cfg-g{grid-template-columns:1fr} }
+
+.grp{border:2px solid;border-color:#808080 #DFDFDF #DFDFDF #808080;padding:6px}
+.grp-t{font:bold 11px Tahoma;margin-bottom:4px}
+.row{display:flex;align-items:center;gap:4px;margin:2px 0;font-size:11px;cursor:pointer}
+select,input[type=number]{font:11px Tahoma;padding:1px}
+input[type=number]{width:45px}
+input[type=checkbox],input[type=radio]{cursor:pointer}
+input[type=range]{flex:1;min-width:80px}
+
+.tabs{display:flex;border:2px solid;border-color:#808080 #DFDFDF #DFDFDF #808080}
+.tab{
+  padding:3px 10px;font-size:11px;cursor:pointer;background:#C0C0C0;
+  border-right:1px solid #808080;
+}
+.tab:last-child{border-right:none}
+.tab.on{background:#FFF;font-weight:bold}
+
+.btn{
+  padding:3px 14px;font:bold 11px Tahoma;background:#C0C0C0;cursor:pointer;
+  border:2px solid;border-color:#DFDFDF #404040 #404040 #DFDFDF;margin-top:6px;
+}
+.btn:active{border-color:#404040 #DFDFDF #DFDFDF #404040}
+
+/* ---------- 开始界面 ---------- */
+.start{padding:12px;text-align:center}
+.start h2{font:bold 14px Tahoma;margin-bottom:10px}
+.start-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;max-width:340px;margin:0 auto}
+.sbtn{
+  padding:8px 4px;font:bold 12px Tahoma;background:#C0C0C0;cursor:pointer;
+  border:2px solid;border-color:#DFDFDF #404040 #404040 #DFDFDF;text-align:center;
+}
+.sbtn:active{border-color:#404040 #DFDFDF #DFDFDF #404040}
+.sbtn small{display:block;font-weight:normal;font-size:10px;margin-top:2px;color:#404040}
+.sbtn.wide{grid-column:1/-1}
+
+/* ---------- 游戏区 ---------- */
+.gp{padding:6px;display:none}
+.gp.on{display:block}
+
+.ibar{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:4px 6px;margin-bottom:4px;
+  border:2px solid;border-color:#808080 #DFDFDF #DFDFDF #808080;
+}
+.lcd{
+  background:#000;color:#F00;
+  font:bold 18px 'Courier New',monospace;
+  padding:1px 4px;min-width:52px;text-align:center;
+  border:1px solid;border-color:#808080 #FFF #FFF #808080;
+  font-variant-numeric:tabular-nums;
+}
+.face{
+  width:30px;height:30px;font-size:16px;background:#C0C0C0;cursor:pointer;
+  border:2px solid;border-color:#DFDFDF #404040 #404040 #DFDFDF;
+  display:flex;align-items:center;justify-content:center;
+}
+.face:active{border-color:#404040 #DFDFDF #DFDFDF #404040}
+
+.bf{
+  border:3px solid;border-color:#808080 #DFDFDF #DFDFDF #808080;
+  display:inline-block;line-height:0;
+  max-width:100%;overflow:auto;
+}
+#board{display:grid}
+
+/* ---------- 格子 ---------- */
+.c{
+  width:26px;height:26px;
+  display:flex;justify-content:center;align-items:center;
+  font-weight:bold;position:relative;
+  font-size:11px;
+  line-height:1;
+  overflow:hidden;
+  flex-shrink:0;
+}
+.c.h{
+  background:#C0C0C0;
+  border:2px solid;border-color:#FFF #808080 #808080 #FFF;
+  cursor:pointer;
+}
+.c.h:active{border:1px solid #808080;background:#B0B0B0}
+.c.r{background:#C0C0C0;border:1px solid #808080;cursor:default}
+
+/* 雷格：醒目背景 + 💣 图标 */
+.c.m1{background:#FF4444;color:#FFF}
+.c.m2{background:#FF9900;color:#000}
+.c.m3{background:#FFFF00;color:#000}
+.c.m4{background:#00DD00;color:#000}
+.c.m5{background:#3377FF;color:#FFF}
+.c.m6{background:#8833FF;color:#FFF}
+.c.m7{background:#FF44FF;color:#000}
+.c.m8{background:#FFFFFF;color:#000;border:1px solid #808080}
+.c.hit{border:3px solid #000}
+.c.m1,.c.m2,.c.m3,.c.m4,
+.c.m5,.c.m6,.c.m7,.c.m8{font-size:14px}
+
+/* 提示数字：字号由 JS 按文本长度动态设定 */
+.c .hint{
+  display:block;
+  white-space:nowrap;
+  font-family:Tahoma,monospace;
+  font-weight:bold;
+  letter-spacing:-0.3px;
+  line-height:1;
+}
+
+.hz{color:#808080}
+.hp{color:#0000EE}
+.hn{color:#EE0000}
+.hi{color:#AA00AA}
+.hm{color:#008800}
+
+/* ---------- 旗帜 ---------- */
+.fl{position:relative;width:20px;height:20px;pointer-events:none}
+.fl-p{position:absolute;left:9px;top:2px;width:2px;height:14px;background:#000}
+.fl-c{
+  position:absolute;left:11px;top:2px;width:0;height:0;
+  border-top:5px solid transparent;border-bottom:5px solid transparent;
+}
+.fl-b{position:absolute;left:5px;bottom:1px;width:10px;height:3px;background:#000}
+.fl.f1 .fl-c{border-left:8px solid #FF0000}
+.fl.f2 .fl-c{border-left:8px solid #FF8800}
+.fl.f3 .fl-c{border-left:8px solid #FFFF00}
+.fl.f4 .fl-c{border-left:8px solid #00CC00}
+.fl.f5 .fl-c{border-left:8px solid #0044FF}
+.fl.f6 .fl-c{border-left:8px solid #6600CC}
+.fl.f7 .fl-c{border-left:8px solid #CC00CC}
+.fl.f8 .fl-c{border-left:8px solid #FFF;filter:drop-shadow(0 0 1px #000)}
+.fq{
+  width:16px;height:16px;background:#000;color:#FF0;
+  font:bold 11px Tahoma;
+  display:flex;align-items:center;justify-content:center;
+  pointer-events:none;
+}
+
+/* ---------- 图例 / 状态栏 ---------- */
+.leg{margin-top:4px;padding:2px 4px;font-size:10px;display:flex;flex-wrap:wrap;gap:6px}
+.leg-i{display:flex;align-items:center;gap:2px}
+.leg-s{width:10px;height:10px;border:1px solid #000;display:inline-block;flex-shrink:0}
+.sb{
+  margin-top:3px;padding:2px 4px;font-size:11px;
+  display:flex;justify-content:space-between;gap:8px;
+  border:1px solid;border-color:#808080 #DFDFDF #DFDFDF #808080;
+}
+
+/* ---------- 弹窗 ---------- */
+.ov{
+  display:none;position:fixed;inset:0;
+  background:rgba(0,128,128,0.9);
+  z-index:99;justify-content:center;align-items:center;
+  padding:20px;
+}
+.ov.show{display:flex}
+.mdl{
+  background:#C0C0C0;
+  border:2px solid;border-color:#DFDFDF #404040 #404040 #DFDFDF;
+  padding:16px 24px;text-align:center;min-width:240px;max-width:100%;
+}
+.mdl h3{font:bold 13px Tahoma;margin-bottom:6px}
+.mdl p{font-size:11px;margin-bottom:12px;line-height:1.7;white-space:pre-line}
+.mdl button{
+  padding:3px 16px;font:bold 11px Tahoma;background:#C0C0C0;cursor:pointer;margin:3px;
+  border:2px solid;border-color:#DFDFDF #404040 #404040 #DFDFDF;
+}
+.mdl button:active{border-color:#404040 #DFDFDF #DFDFDF #404040}
+.mdl a{color:#0000EE;text-decoration:underline;cursor:pointer}
+.widget-container{
+  margin-top:10px;
+  border:1px dashed #808080;
+  padding:5px;
+  min-height:100px;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  background:#FFF;
+}
+</style>
+<!-- 51.LA SDK -->
+<script charset="UTF-8" id="LA_COLLECT" src="//sdk.51.la/js-sdk-pro.min.js"></script>
+<script>LA.init({id:"3MmglXzAwQRB1m3D",ck:"3MmglXzAwQRB1m3D"})</script>
+</head>
+<body>
+
+<div class="win">
+  <div class="tbar">
+    <span>复数扫雷</span>
+    <span class="tbtns" aria-hidden="true">
+      <span class="tbtn">_</span><span class="tbtn">□</span><span class="tbtn">✕</span>
+    </span>
+  </div>
+
+  <div class="mbar">
+    <span class="mi" data-action="modes"   role="button" tabindex="0">模式</span>
+    <span class="mi" data-action="config"  role="button" tabindex="0">设置</span>
+    <span class="mi" data-action="restart" role="button" tabindex="0">新局</span>
+    <span class="mi" data-action="about"   role="button" tabindex="0">关于</span>
+    <span class="mi" data-action="help"    role="button" tabindex="0">帮助</span>
+  </div>
+
+  <!-- ============ 设置面板 ============ -->
+  <div class="cfg" id="configPanel">
+    <div class="cfg-g">
+      <div>
+        <div class="grp">
+          <div class="grp-t">棋盘</div>
+          <div class="row">
+            行 <input type="number" id="rowsInput" min="2" max="16" value="9" inputmode="numeric">
+            列 <input type="number" id="colsInput" min="2" max="16" value="9" inputmode="numeric">
+          </div>
+        </div>
+
+        <div class="grp" style="margin-top:4px">
+          <div class="grp-t">雷数：<b id="mineLabel">10</b> / <span id="mineMax">60</span></div>
+          <div class="row">
+            <input type="range" id="mineRange" min="1" max="60" value="10" aria-label="雷数">
+          </div>
+        </div>
+
+        <div class="grp" style="margin-top:4px">
+          <div class="grp-t">显示</div>
+          <div class="tabs" role="tablist">
+            <div class="tab on" data-mode="0" role="tab" tabindex="0">a+bi</div>
+            <div class="tab"    data-mode="1" role="tab" tabindex="0">|z|</div>
+          </div>
+          <label class="row" style="margin-top:4px">
+            <input type="checkbox" id="autoFlood" checked> 自动展开空白
+          </label>
+        </div>
+      </div>
+
+      <div>
+        <div class="grp">
+          <div class="grp-t">雷种</div>
+          <label class="row"><input type="checkbox" class="mine-type" data-type="1" checked> 实雷 (+1)</label>
+          <label class="row"><input type="checkbox" class="mine-type" data-type="2" checked> 虚雷 (+i)</label>
+          <label class="row"><input type="checkbox" class="mine-type" data-type="3" checked> 复雷 (1+i)</label>
+          <label class="row"><input type="checkbox" class="mine-type" data-type="4" checked> 共轭雷 (1-i)</label>
+          <label class="row"><input type="checkbox" class="mine-type" data-type="5" checked> 负实雷 (-1)</label>
+          <label class="row"><input type="checkbox" class="mine-type" data-type="6" checked> 负虚雷 (-i)</label>
+          <label class="row"><input type="checkbox" class="mine-type" data-type="7" checked> 反复雷 (-1-i)</label>
+          <label class="row"><input type="checkbox" class="mine-type" data-type="8" checked> 共轭反复雷 (-1+i)</label>
+        </div>
+
+        <div class="grp" style="margin-top:4px">
+          <div class="grp-t">胜利条件</div>
+          <label class="row"><input type="radio" name="winMode" id="winLoose" checked> 翻开所有安全格即胜</label>
+          <label class="row"><input type="radio" name="winMode" id="winStrict"> 还需正确标记所有雷</label>
+        </div>
+
+        <button class="btn" data-action="applyConfig">应用</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ 开始界面 ============ -->
+  <div class="start" id="startScreen">
+    <h2>选择模式</h2>
+    <div class="start-grid">
+      <div class="sbtn" data-preset="easy">简单<small>4~5 格 少量雷</small></div>
+      <div class="sbtn" data-preset="normal">普通<small>6~8 格 中等雷</small></div>
+      <div class="sbtn" data-preset="hard">困难<small>9~12 格 多雷</small></div>
+      <div class="sbtn" data-preset="hell">炼狱<small>12~16 格 高密度</small></div>
+      <div class="sbtn" data-preset="random">全随机<small>一切随缘</small></div>
+      <div class="sbtn" data-action="custom">自定义<small>手动配置</small></div>
+      <div class="sbtn wide" data-action="quickStart">⚡ 快速开始<small>9×9 · 10 雷 · 模长 · 不自动展开</small></div>
+    </div>
+  </div>
+
+  <!-- ============ 游戏界面 ============ -->
+  <div class="gp" id="gamePanel">
+    <div class="ibar">
+      <div class="lcd" id="mineCounter" title="剩余雷数">000</div>
+      <div class="face" id="face" role="button" tabindex="0" title="重新开始">🙂</div>
+      <div class="lcd" id="timeCounter" title="用时（秒）">000</div>
+    </div>
+    <div class="bf"><div id="board" role="grid" aria-label="扫雷棋盘"></div></div>
+    <div class="leg" id="legend"></div>
+    <div class="sb"><span id="statusText">就绪</span><span id="flagText"></span></div>
+  </div>
+</div>
+
+<!-- ============ 弹窗 ============ -->
+<div class="ov" id="overlay" role="dialog" aria-modal="true">
+  <div class="mdl">
+    <h3 id="modalTitle"></h3>
+    <p id="modalBody"></p>
+    <div id="widgetSlot" class="widget-container" style="display:none;">
+      <!-- Data Widget will be injected here or loaded via script -->
+    </div>
+    <div id="modalButtons">
+      <button data-action="replay">再来</button>
+      <button data-action="pickMode">选模式</button>
+      <button data-action="closeModal">关闭</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  /* ============================================================
+     常量
+     ============================================================ */
+
+  const MAX_SIZE      = 16;      // 行/列上限
+  const MIN_SIZE      = 2;       // 行/列下限（1×1 棋盘数学上无法安全开局）
+  const CELL_PX       = 26;      // 格子边长，与 CSS 保持一致
+  const DENSITY_LIMIT = 0.75;    // 雷数密度上限
+  const FLAG_NONE     = 0;       // 无旗
+  const FLAG_QUESTION = 9;       // 问号旗
+  const FLAG_MAX      = 9;       // 旗帜枚举循环到 9 后归 0
+  const MINE_ICON_SAFE = '💣';
+  const MINE_ICON_EXPLODED = '💥';
+
+  /**
+   * 雷种定义（下标即类型编号，0 表示空格）
+   *  1 实雷        +1
+   *  2 虚雷        +i
+   *  3 复雷        1+i
+   *  4 共轭雷      1-i
+   *  5 负实雷      -1
+   *  6 负虚雷      -i
+   *  7 反复雷      -1-i
+   *  8 共轭反复雷  -1+i
+   */
+  const MINES = [
+    { name: '无',         re:  0, im:  0 },
+    { name: '实雷',       re:  1, im:  0 },
+    { name: '虚雷',       re:  0, im:  1 },
+    { name: '复雷',       re:  1, im:  1 },
+    { name: '共轭雷',     re:  1, im: -1 },
+    { name: '负实雷',     re: -1, im:  0 },
+    { name: '负虚雷',     re:  0, im: -1 },
+    { name: '反复雷',     re: -1, im: -1 },
+    { name: '共轭反复雷', re: -1, im:  1 },
+    { name: '?',          re:  0, im:  0 }
+  ];
+
+  const MINE_COLORS = [
+    '', '#FF4444', '#FF9900', '#FFFF00', '#00DD00',
+    '#3377FF', '#8833FF', '#FF44FF', '#FFFFFF'
+  ];
+
+  const ALL_TYPES = [1, 2, 3, 4, 5, 6, 7, 8];
+
+  /* 旗帜 HTML 缓存，避免每帧拼字符串 */
+  const FLAG_HTML = (function () {
+    const arr = new Array(FLAG_MAX + 1).fill('');
+    for (let i = 1; i <= 8; i++) {
+      arr[i] =
+        '<div class="fl f' + i + '">' +
+          '<div class="fl-c"></div>' +
+          '<div class="fl-p"></div>' +
+          '<div class="fl-b"></div>' +
+        '</div>';
+    }
+    arr[FLAG_QUESTION] = '<div class="fq">?</div>';
+    return arr;
+  })();
+
+  /* ============================================================
+     通用工具
+     ============================================================ */
+
+  const $ = (id) => document.getElementById(id);
+
+  function randInt(min, max) {
+    return min + Math.floor(Math.random() * (max - min + 1));
+  }
+
+  /** 从数组随机取一个元素；空数组返回 undefined */
+  function pickOne(list) {
+    if (!list || list.length === 0) return undefined;
+    return list[(Math.random() * list.length) | 0];
+  }
+
+  function clamp(value, min, max) {
+    return Math.max(min, Math.min(max, value));
+  }
+
+  function shuffle(list) {
+    for (let i = list.length - 1; i > 0; i--) {
+      const j = (Math.random() * (i + 1)) | 0;
+      const tmp = list[i];
+      list[i] = list[j];
+      list[j] = tmp;
+    }
+    return list;
+  }
+
+  function toInt(value, fallback) {
+    const n = parseInt(value, 10);
+    return Number.isFinite(n) ? n : fallback;
+  }
+
+  /** 棋盘允许的最大雷数：至少保留一格安全 */
+  function maxMinesFor(r, c) {
+    const byArea = r * c - 1;
+    const byDensity = Math.floor(r * c * DENSITY_LIMIT);
+    return Math.max(1, Math.min(byArea, byDensity));
+  }
+
+  /* ============================================================
+     DOM 引用
+     ============================================================ */
+
+  const ui = {
+    board:       $('board'),
+    face:        $('face'),
+    mineCounter: $('mineCounter'),
+    timeCounter: $('timeCounter'),
+    statusText:  $('statusText'),
+    flagText:    $('flagText'),
+    legend:      $('legend'),
+    configPanel: $('configPanel'),
+    startScreen: $('startScreen'),
+    gamePanel:   $('gamePanel'),
+    rowsInput:   $('rowsInput'),
+    colsInput:   $('colsInput'),
+    mineRange:   $('mineRange'),
+    mineLabel:   $('mineLabel'),
+    mineMax:     $('mineMax'),
+    autoFlood:   $('autoFlood'),
+    winLoose:    $('winLoose'),
+    winStrict:   $('winStrict'),
+    overlay:     $('overlay'),
+    modalTitle:  $('modalTitle'),
+    modalBody:   $('modalBody'),
+    widgetSlot:  $('widgetSlot'),
+    modalButtons:$('modalButtons')
+  };
+
+  const typeCheckboxes = Array.from(document.querySelectorAll('.mine-type'));
+  const displayTabs    = Array.from(document.querySelectorAll('.tab[data-mode]'));
+
+  /* ============================================================
+     游戏状态
+     ============================================================ */
+
+  const state = {
+    rows: 9,
+    cols: 9,
+    mineTotal: 10,
+    enabledTypes: ALL_TYPES.slice(),
+    displayMode: 0,           // 0 = a+bi，1 = |z|
+    autoFlood: true,
+    winMode: 0,               // 0 = 宽松，1 = 严格
+    status: 'idle',           // idle | playing | won | lost
+    timerId: null,
+    elapsed: 0,
+    firstClick: true,
+    flagCount: 0
+  };
+
+  let grid = [];              // grid[r][c] = Cell
+  let cellEls = [];           // 与 grid 对应的 DOM 节点
+
+  function createCell() {
+    return {
+      mine: false,
+      type: 0,
+      revealed: false,
+      flag: FLAG_NONE,
+      exploded: false
+    };
+  }
+
+  /* ============================================================
+     棋盘几何
+     ============================================================ */
+
+  function eachNeighbor(r, c, fn) {
+    for (let dr = -1; dr <= 1; dr++) {
+      for (let dc = -1; dc <= 1; dc++) {
+        if (dr === 0 && dc === 0) continue;
+        const nr = r + dr;
+        const nc = c + dc;
+        if (nr < 0 || nr >= state.rows || nc < 0 || nc >= state.cols) continue;
+        fn(nr, nc);
+      }
+    }
+  }
+
+  function computeHint(r, c) {
+    let re = 0, im = 0;
+    eachNeighbor(r, c, (nr, nc) => {
+      const cell = grid[nr][nc];
+      if (cell.mine) {
+        re += MINES[cell.type].re;
+        im += MINES[cell.type].im;
+      }
+    });
+    return [re, im];
+  }
+
+  /* ============================================================
+     复数格式化
+     ============================================================ */
+
+  /**
+   * 规范的 a+bi 形式。
+   * 实部为 ±1 时**不**省略数字（否则 -1-1i 会变成 --i）。
+   *   ( 1,  1) →  "1+i"
+   *   (-1, -1) →  "-1-i"
+   *   ( 0,  1) →  "i"
+   *   (-1,  0) →  "-1"
+   */
+  function formatComplex(re, im) {
+    if (re === 0 && im === 0) return '0';
+
+    let s = '';
+
+    if (re !== 0) s += String(re);
+
+    if (im !== 0) {
+      if (re !== 0)         s += im > 0 ? '+' : '-';
+      else if (im < 0)      s += '-';
+
+      const absIm = Math.abs(im);
+      if (absIm !== 1) s += absIm;
+      s += 'i';
+    }
+
+    return s;
+  }
+
+  /** 把整数 n 拆成最简根式系数，返回 [c, d]，表示 c√d */
+  function simplifyRadical(n) {
+    if (n <= 0) return [0, 1];
+    const root = Math.floor(Math.sqrt(n));
+    for (let i = root; i >= 2; i--) {
+      if (n % (i * i) === 0) return [i, n / (i * i)];
+    }
+    return [1, n];
+  }
+
+  function formatMagnitude(re, im) {
+    const square = re * re + im * im;
+    if (square === 0) return '0';
+
+    const [coef, radicand] = simplifyRadical(square);
+    if (radicand === 1) return String(coef);
+    if (coef === 1)     return '√' + radicand;
+    return coef + '√' + radicand;
+  }
+
+  /**
+   * 提示数字的自适应字号。
+   * 26px 宽的格子最多容纳约 5 个字符（含负号），按长度分档。
+   *   len ≤ 2 → 11px
+   *   len = 3 → 10px
+   *   len = 4 →  9px
+   *   len = 5 →  8px
+   *   len ≥ 6 →  7px
+   */
+  function hintFontSize(len) {
+    if (len <= 2) return 11;
+    if (len === 3) return 10;
+    if (len === 4) return 9;
+    if (len === 5) return 8;
+    return 7;
+  }
+
+  /* ============================================================
+     渲染
+     ============================================================ */
+
+  function buildBoardDOM() {
+    grid = [];
+    cellEls = [];
+    ui.board.textContent = '';
+    ui.board.style.gridTemplateColumns = 'repeat(' + state.cols + ', ' + CELL_PX + 'px)';
+
+    const frag = document.createDocumentFragment();
+
+    for (let r = 0; r < state.rows; r++) {
+      grid[r] = [];
+      cellEls[r] = [];
+      for (let c = 0; c < state.cols; c++) {
+        grid[r][c] = createCell();
+
+        const el = document.createElement('div');
+        el.className = 'c h';
+        el.dataset.r = r;
+        el.dataset.c = c;
+        el.setAttribute('role', 'gridcell');
+        frag.appendChild(el);
+
+        cellEls[r][c] = el;
+      }
+    }
+
+    ui.board.appendChild(frag);
+  }
+
+  function paintCell(r, c) {
+    const cell = grid[r][c];
+    const el = cellEls[r][c];
+
+    /* --- 未翻开 --- */
+    if (!cell.revealed) {
+      el.className = 'c h';
+      el.innerHTML = cell.flag ? FLAG_HTML[cell.flag] : '';
+      return;
+    }
+
+    /* --- 雷 --- */
+    if (cell.mine) {
+      const type = MINES[cell.type];
+      el.className = 'c m' + cell.type + (cell.exploded ? ' hit' : '');
+      // 如果爆炸了显示💥，否则显示💣
+      el.textContent = cell.exploded ? MINE_ICON_EXPLODED : MINE_ICON_SAFE;
+      el.title = type.name + ' (' + formatComplex(type.re, type.im) + ')';
+      return;
+    }
+
+    /* --- 安全格：显示提示 --- */
+    const [re, im] = computeHint(r, c);
+    const text = state.displayMode === 0
+      ? formatComplex(re, im)
+      : formatMagnitude(re, im);
+
+    let cls = 'hz';
+    if (re !== 0 || im !== 0) {
+      if (im === 0)      cls = re > 0 ? 'hp' : 'hn';
+      else if (re === 0) cls = 'hi';
+      else               cls = 'hm';
+    }
+
+    const fs = hintFontSize(text.length);
+
+    el.className = 'c r';
+    el.innerHTML =
+      '<span class="hint ' + cls + '" style="font-size:' + fs + 'px">' +
+        text +
+      '</span>';
+  }
+
+  function repaintAll() {
+    for (let r = 0; r < state.rows; r++) {
+      for (let c = 0; c < state.cols; c++) paintCell(r, c);
+    }
+  }
+
+  function renderLegend() {
+    ui.legend.textContent = '';
+    const frag = document.createDocumentFragment();
+
+    state.enabledTypes.forEach((t) => {
+      const item = document.createElement('span');
+      item.className = 'leg-i';
+      item.innerHTML =
+        '<span class="leg-s" style="background:' + MINE_COLORS[t] + '"></span>' +
+        MINES[t].name + ' (' + formatComplex(MINES[t].re, MINES[t].im) + ')';
+      frag.appendChild(item);
+    });
+
+    ui.legend.appendChild(frag);
+  }
+
+  function updateMineCounter() {
+    const remaining = Math.max(state.mineTotal - state.flagCount, 0);
+    ui.mineCounter.textContent = String(remaining).padStart(3, '0');
+  }
+
+  function updateFlagText() {
+    ui.flagText.textContent = '🚩 ' + state.flagCount + ' / ' + state.mineTotal;
+  }
+
+  /* ============================================================
+     计时器
+     ============================================================ */
+
+  function startTimer() {
+    stopTimer();
+    state.elapsed = 0;
+    ui.timeCounter.textContent = '000';
+    state.timerId = setInterval(() => {
+      state.elapsed++;
+      ui.timeCounter.textContent =
+        String(Math.min(state.elapsed, 999)).padStart(3, '0');
+    }, 1000);
+  }
+
+  function stopTimer() {
+    if (state.timerId !== null) {
+      clearInterval(state.timerId);
+      state.timerId = null;
+    }
+  }
+
+  /* ============================================================
+     开局
+     ============================================================ */
+
+  function startGame(settings) {
+    /* 归一化参数，任何非法输入都会被纠正 */
+    const r = clamp(toInt(settings.rows, 9), MIN_SIZE, MAX_SIZE);
+    const c = clamp(toInt(settings.cols, 9), MIN_SIZE, MAX_SIZE);
+    const maxMines = maxMinesFor(r, c);
+    const m = clamp(toInt(settings.mines, 10), 1, maxMines);
+    const types = (Array.isArray(settings.types) && settings.types.length)
+      ? settings.types.filter((t) => t >= 1 && t <= 8)
+      : ALL_TYPES.slice();
+
+    if (types.length === 0) types.push(...ALL_TYPES);
+
+    state.rows             = r;
+    state.cols             = c;
+    state.mineTotal        = m;
+    state.enabledTypes     = types.slice();
+    state.displayMode      = settings.display === 1 ? 1 : 0;
+    state.autoFlood        = settings.autoFlood !== false;
+    state.winMode          = settings.winMode === 1 ? 1 : 0;
+
+    buildBoardDOM();
+    placeMines();
+
+    state.status     = 'playing';
+    state.firstClick = true;
+    state.flagCount  = 0;
+    state.elapsed    = 0;
+    stopTimer();
+
+    repaintAll();
+    renderLegend();
+    updateMineCounter();
+    updateFlagText();
+
+    ui.face.textContent = '🙂';
+    ui.timeCounter.textContent = '000';
+    ui.statusText.textContent = '就绪';
+
+    syncConfigPanel();
+    showGame();
+  }
+
+  /** 随机撒雷，数量已由 state.mineTotal 保证合法 */
+  function placeMines() {
+    const total = state.rows * state.cols;
+    const slots = new Array(total);
+    for (let i = 0; i < total; i++) slots[i] = i;
+    shuffle(slots);
+
+    for (let k = 0; k < state.mineTotal; k++) {
+      const r = (slots[k] / state.cols) | 0;
+      const c = slots[k] % state.cols;
+      grid[r][c].mine = true;
+      grid[r][c].type = pickOne(state.enabledTypes) || 1;
+    }
+  }
+
+  /**
+   * 首点安全：把点击处周围的雷挪到安全区之外。
+   * 若棋盘太小无法容纳 3×3 安全区，则逐步收缩，但保证：
+   *   1. 至少保留点击格本身安全
+   *   2. 雷的总数不变
+   */
+  function ensureSafeOpening(sr, sc) {
+    const safeKeys = [sr * state.cols + sc];
+    eachNeighbor(sr, sc, (nr, nc) => {
+      safeKeys.push(nr * state.cols + nc);
+    });
+
+    const totalCells = state.rows * state.cols;
+    let safeCount = safeKeys.length;
+
+    /* 收缩安全区，直到安全区外有足够的空格容纳所有雷 */
+    while (safeCount > 1 && state.mineTotal > totalCells - safeCount) {
+      safeCount--;
+    }
+
+    const safeSet = new Set(safeKeys.slice(0, safeCount));
+
+    /* 摘除安全区内的雷 */
+    const toMove = [];
+    safeSet.forEach((key) => {
+      const r = (key / state.cols) | 0;
+      const c = key % state.cols;
+      if (grid[r][c].mine) toMove.push([r, c]);
+    });
+
+    if (toMove.length === 0) return;
+
+    toMove.forEach(([r, c]) => {
+      grid[r][c].mine = false;
+      grid[r][c].type = 0;
+    });
+
+    /* 收集安全区外的空格 */
+    const empty = [];
+    for (let r = 0; r < state.rows; r++) {
+      for (let c = 0; c < state.cols; c++) {
+        if (!safeSet.has(r * state.cols + c) && !grid[r][c].mine) {
+          empty.push([r, c]);
+        }
+      }
+    }
+    shuffle(empty);
+
+    /* safeCount 的收缩保证 empty.length ≥ toMove.length */
+    for (let i = 0; i < toMove.length; i++) {
+      const [r, c] = empty[i];
+      grid[r][c].mine = true;
+      grid[r][c].type = pickOne(state.enabledTypes) || 1;
+    }
+  }
+
+  /* ============================================================
+     玩家操作
+     ============================================================ */
+
+  function revealCell(r, c) {
+    if (state.status !== 'playing') return;
+    if (!inBounds(r, c)) return;
+
+    const cell = grid[r][c];
+    if (cell.revealed || cell.flag !== FLAG_NONE) return;
+
+    if (state.firstClick) {
+      state.firstClick = false;
+      ensureSafeOpening(r, c);
+      startTimer();
+    }
+
+    /* 踩雷 */
+    if (cell.mine) {
+      cell.revealed = true;
+      cell.exploded = true;
+      loseGame(cell);
+      return;
+    }
+
+    /* 安全格 */
+    if (state.autoFlood) floodFill(r, c);
+    else {
+      cell.revealed = true;
+      paintCell(r, c);
+    }
+
+    checkWin();
+  }
+
+  function inBounds(r, c) {
+    return r >= 0 && r < state.rows && c >= 0 && c < state.cols;
+  }
+
+  function floodFill(sr, sc) {
+    const stack = [[sr, sc]];
+
+    while (stack.length) {
+      const [r, c] = stack.pop();
+      const cell = grid[r][c];
+
+      if (cell.revealed || cell.mine || cell.flag !== FLAG_NONE) continue;
+
+      cell.revealed = true;
+      paintCell(r, c);
+
+      const [re, im] = computeHint(r, c);
+      if (re === 0 && im === 0) {
+        eachNeighbor(r, c, (nr, nc) => stack.push([nr, nc]));
+      }
+    }
+  }
+
+  function cycleFlag(r, c) {
+    if (state.status !== 'playing') return;
+    if (!inBounds(r, c)) return;
+
+    const cell = grid[r][c];
+    if (cell.revealed) return;
+
+    const wasCounted =
+      cell.flag > FLAG_NONE && cell.flag < FLAG_QUESTION;
+
+    cell.flag = (cell.flag + 1) % (FLAG_MAX + 1);
+
+    const isCounted =
+      cell.flag > FLAG_NONE && cell.flag < FLAG_QUESTION;
+
+    if (isCounted !== wasCounted) {
+      state.flagCount += isCounted ? 1 : -1;
+    }
+
+    paintCell(r, c);
+    updateMineCounter();
+    updateFlagText();
+  }
+
+  /* ============================================================
+     胜负判定
+     ============================================================ */
+
+  function loseGame(exploded) {
+    state.status = 'lost';
+    stopTimer();
+
+    ui.face.textContent = '😵';
+    ui.statusText.textContent = '💥 踩雷';
+
+    for (let r = 0; r < state.rows; r++) {
+      for (let c = 0; c < state.cols; c++) {
+        if (grid[r][c].mine) {
+          grid[r][c].revealed = true;
+          paintCell(r, c);
+        }
+      }
+    }
+
+    const type = MINES[exploded.type];
+    showModal(
+      '💥 踩雷',
+      '踩中【' + type.name + '】(' +
+        formatComplex(type.re, type.im) + ')\n' +
+      '用时 ' + state.elapsed + ' 秒'
+    );
+  }
+
+  function isLooseWin() {
+    for (let r = 0; r < state.rows; r++) {
+      for (let c = 0; c < state.cols; c++) {
+        const cell = grid[r][c];
+        if (!cell.mine && !cell.revealed) return false;
+      }
+    }
+    return true;
+  }
+
+  function isStrictWin() {
+    for (let r = 0; r < state.rows; r++) {
+      for (let c = 0; c < state.cols; c++) {
+        const cell = grid[r][c];
+        if (cell.mine) {
+          if (cell.flag !== cell.type) return false;
+        } else {
+          if (!cell.revealed) return false;
+          if (cell.flag !== FLAG_NONE) return false;
+        }
+      }
+    }
+    return true;
+  }
+
+  function checkWin() {
+    const won = state.winMode === 0 ? isLooseWin() : isStrictWin();
+    if (!won) return;
+
+    state.status = 'won';
+    stopTimer();
+
+    ui.face.textContent = '😎';
+    ui.statusText.textContent = '🎉 胜利';
+
+    const message = state.winMode === 0
+      ? '所有安全格已翻开\n用时 ' + state.elapsed + ' 秒'
+      : '安全格翻开 + ' + state.mineTotal +
+        ' 颗雷全部正确标记\n用时 ' + state.elapsed + ' 秒';
+
+    showModal('🎉 胜利', message);
+  }
+
+  /* ============================================================
+     预设与配置
+     ============================================================ */
+
+  function applyPreset(name) {
+    let r, c, m, types, display;
+
+    switch (name) {
+      case 'easy':
+        r = randInt(4, 5);   c = randInt(4, 5);   m = randInt(2, 4);
+        types = pickOne([[1], [2], [1, 2]]);
+        display = 0;
+        break;
+
+      case 'normal':
+        r = randInt(6, 8);   c = randInt(6, 8);   m = randInt(6, 12);
+        types = pickOne([
+          [1, 2, 3], [1, 2, 5], [1, 3, 4],
+          [1, 2, 3, 4], [1, 2, 5, 6]
+        ]);
+        display = 0;
+        break;
+
+      case 'hard':
+        r = randInt(9, 12);  c = randInt(9, 12);  m = randInt(15, 25);
+        types = pickOne([
+          [1, 2, 3, 4, 5, 6],
+          [1, 2, 3, 4, 5, 6, 7],
+          [1, 2, 3, 4, 5, 6, 7, 8]
+        ]);
+        display = randInt(0, 1);
+        break;
+
+      case 'hell':
+        r = randInt(12, 16); c = randInt(12, 16);
+        m = randInt(30, Math.floor(r * c * 0.6));
+        types = ALL_TYPES.slice();
+        display = 1;
+        break;
+
+      case 'random':
+        r = randInt(4, 16);  c = randInt(4, 16);
+        m = randInt(1, Math.max(1, Math.floor(r * c * 0.7)));
+        types = shuffle(ALL_TYPES.slice()).slice(0, randInt(1, 8));
+        display = randInt(0, 1);
+        break;
+
+      default:
+        return;
+    }
+
+    const maxM = maxMinesFor(r, c);
+    m = clamp(m, 1, maxM);
+
+    startGame({
+      rows: r, cols: c, mines: m,
+      types, display,
+      autoFlood: true,
+      winMode: 0
+    });
+  }
+
+  function quickStart() {
+    startGame({
+      rows: 9, cols: 9, mines: 10,
+      types: ALL_TYPES.slice(),
+      display: 1,
+      autoFlood: false,
+      winMode: 0
+    });
+  }
+
+  function applyCustomConfig() {
+    syncSizeLimits();
+
+    const r = clamp(toInt(ui.rowsInput.value, 9), MIN_SIZE, MAX_SIZE);
+    const c = clamp(toInt(ui.colsInput.value, 9), MIN_SIZE, MAX_SIZE);
+
+    const types = typeCheckboxes
+      .filter((cb) => cb.checked)
+      .map((cb) => toInt(cb.dataset.type, 0))
+      .filter((t) => t >= 1 && t <= 8);
+
+    if (types.length === 0) {
+      alert('请至少选择一种雷');
+      return;
+    }
+
+    const maxM = maxMinesFor(r, c);
+    const m = clamp(toInt(ui.mineRange.value, 10), 1, maxM);
+
+    hideConfig();
+    startGame({
+      rows: r, cols: c, mines: m,
+      types,
+      display: state.displayMode,
+      autoFlood: ui.autoFlood.checked,
+      winMode: ui.winStrict.checked ? 1 : 0
+    });
+  }
+
+  /** 把当前游戏状态回填到配置面板 */
+  function syncConfigPanel() {
+    ui.rowsInput.value = state.rows;
+    ui.colsInput.value = state.cols;
+    ui.autoFlood.checked = state.autoFlood;
+    ui.winLoose.checked  = state.winMode === 0;
+    ui.winStrict.checked = state.winMode === 1;
+
+    typeCheckboxes.forEach((cb) => {
+      cb.checked = state.enabledTypes.indexOf(+cb.dataset.type) >= 0;
+    });
+
+    const maxM = maxMinesFor(state.rows, state.cols);
+    ui.mineRange.min = 1;
+    ui.mineRange.max = maxM;
+    ui.mineRange.value = clamp(state.mineTotal, 1, maxM);
+    ui.mineMax.textContent = maxM;
+    ui.mineLabel.textContent = ui.mineRange.value;
+  }
+
+  /** 行列变化时同步雷数滑块的范围与当前值 */
+  function syncSizeLimits() {
+    const r = clamp(toInt(ui.rowsInput.value, 9), MIN_SIZE, MAX_SIZE);
+    const c = clamp(toInt(ui.colsInput.value, 9), MIN_SIZE, MAX_SIZE);
+    ui.rowsInput.value = r;
+    ui.colsInput.value = c;
+
+    const maxM = maxMinesFor(r, c);
+    ui.mineRange.min = 1;
+    ui.mineRange.max = maxM;
+
+    let cur = toInt(ui.mineRange.value, 1);
+    cur = clamp(cur, 1, maxM);
+    ui.mineRange.value = cur;
+
+    ui.mineMax.textContent = maxM;
+    ui.mineLabel.textContent = cur;
+  }
+
+  function setDisplayMode(mode) {
+    state.displayMode = mode === 1 ? 1 : 0;
+    displayTabs.forEach((tab) => {
+      tab.classList.toggle('on', +tab.dataset.mode === state.displayMode);
+    });
+    if (state.status === 'playing') repaintAll();
+  }
+
+  /* ============================================================
+     界面切换
+     ============================================================ */
+
+  function showGame() {
+    ui.startScreen.style.display = 'none';
+    hideConfig();
+    ui.gamePanel.classList.add('on');
+  }
+
+  function showStartScreen() {
+    stopTimer();
+    state.status = 'idle';
+    ui.gamePanel.classList.remove('on');
+    hideConfig();
+    ui.startScreen.style.display = 'block';
+  }
+
+  function toggleConfig() {
+    ui.configPanel.classList.toggle('open');
+  }
+
+  function hideConfig() {
+    ui.configPanel.classList.remove('open');
+  }
+
+  function openCustomConfig() {
+    ui.startScreen.style.display = 'none';
+    ui.gamePanel.classList.remove('on');
+    ui.configPanel.classList.add('open');
+  }
+
+  function restart() {
+    if (state.status === 'idle') {
+      showStartScreen();
+      return;
+    }
+    startGame({
+      rows: state.rows,
+      cols: state.cols,
+      mines: state.mineTotal,
+      types: state.enabledTypes,
+      display: state.displayMode,
+      autoFlood: state.autoFlood,
+      winMode: state.winMode
+    });
+  }
+
+  /* ============================================================
+     弹窗
+     ============================================================ */
+
+  function showModal(title, body, showWidget = false, buttonsVisible = true) {
+    ui.modalTitle.textContent = title;
+    
+    // 处理内容中的超链接
+    ui.modalBody.innerHTML = body.replace(/https?:\/\/[^\s]+/g, url => 
+      `<a href="${url}" target="_blank">${url}</a>`
+    );
+
+    if (showWidget) {
+      ui.widgetSlot.style.display = 'flex';
+      // 清除旧的小部件并重新加载
+      ui.widgetSlot.innerHTML = '';
+      
+      const script = document.createElement('script');
+      script.id = "LA-DATA-WIDGET";
+      script.crossOrigin = "anonymous";
+      script.charset = "UTF-8";
+      script.src = "https://v6-widget.51.la/v6/3MmglXzAwQRB1m3D/quote.js?theme=0&col=true&f=12&badge=icon_0&icon=center";
+      ui.widgetSlot.appendChild(script);
+    } else {
+      ui.widgetSlot.style.display = 'none';
+      ui.widgetSlot.innerHTML = '';
+    }
+
+    ui.modalButtons.style.display = buttonsVisible ? 'block' : 'none';
+    ui.overlay.classList.add('show');
+  }
+
+  function closeModal() {
+    ui.overlay.classList.remove('show');
+  }
+
+  function showHelp() {
+    showModal(
+      '帮助',
+      '左键翻开，右键循环插旗\n' +
+      '（无 → 实雷 → 虚雷 → 复雷 → 共轭雷 → 负实雷 → ' +
+        '负虚雷 → 反复雷 → 共轭反复雷 → ? → 无）\n\n' +
+      '提示 = 周围雷的复数之和\n\n' +
+      '宽松胜利：翻开所有安全格即胜\n' +
+      '严格胜利：还需正确标记每颗雷的颜色',
+      false,
+      true
+    );
+  }
+
+  function showAbout() {
+    const aboutContent = 
+      `作者：https://m.bilibili.com/space/1536447241 小左1120
+	  ` +
+      `本游戏的诞生离不开：Qwen、Deepseek`;
+    
+    // 在关于页面显示数据挂件，隐藏常规按钮只留关闭
+    showModal('关于', aboutContent, true, false);
+  }
+
+  /* ============================================================
+     动作表
+     ============================================================ */
+
+  const ACTIONS = {
+    modes:       showStartScreen,
+    config:      toggleConfig,
+    restart:     restart,
+    help:        showHelp,
+    about:       showAbout,
+    quickStart:  quickStart,
+    custom:      openCustomConfig,
+    applyConfig: applyCustomConfig,
+    closeModal:  closeModal,
+    replay:      () => { closeModal(); restart(); },
+    pickMode:    () => { closeModal(); showStartScreen(); }
+  };
+
+  /* ============================================================
+     事件绑定
+     ============================================================ */
+
+  function bindEvents() {
+    /* ---------- 棋盘：事件委托 ---------- */
+    ui.board.addEventListener('click', (e) => {
+      const el = e.target instanceof Element && e.target.closest('.c');
+      if (!el || !ui.board.contains(el)) return;
+      revealCell(+el.dataset.r, +el.dataset.c);
+    });
+
+    ui.board.addEventListener('contextmenu', (e) => {
+      const el = e.target instanceof Element && e.target.closest('.c');
+      if (!el || !ui.board.contains(el)) return;
+      e.preventDefault();
+      cycleFlag(+el.dataset.r, +el.dataset.c);
+    });
+
+    /* ---------- 触摸长按模拟右键 ---------- */
+    let touchTimer = null;
+    let touchCell = null;
+    let touchMoved = false;
+
+    ui.board.addEventListener('touchstart', (e) => {
+      const el = e.target instanceof Element && e.target.closest('.c');
+      if (!el) return;
+      touchCell = el;
+      touchMoved = false;
+      clearTimeout(touchTimer);
+      touchTimer = setTimeout(() => {
+        if (touchCell && !touchMoved) {
+          cycleFlag(+touchCell.dataset.r, +touchCell.dataset.c);
+          touchCell = null; // 已作为长按处理，touchend 不再翻开
+        }
+      }, 500);
+    }, { passive: true });
+
+    ui.board.addEventListener('touchmove', () => {
+      touchMoved = true;
+      clearTimeout(touchTimer);
+      touchCell = null;
+    }, { passive: true });
+
+    ui.board.addEventListener('touchend', () => {
+      clearTimeout(touchTimer);
+      if (touchCell && !touchMoved) {
+        revealCell(+touchCell.dataset.r, +touchCell.dataset.c);
+      }
+      touchCell = null;
+    });
+
+    ui.board.addEventListener('touchcancel', () => {
+      clearTimeout(touchTimer);
+      touchCell = null;
+    });
+
+    /* ---------- 表情按钮 ---------- */
+    ui.face.addEventListener('click', restart);
+    ui.face.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        restart();
+      }
+    });
+
+    /* ---------- 输入框 ---------- */
+    ui.rowsInput.addEventListener('change', syncSizeLimits);
+    ui.colsInput.addEventListener('change', syncSizeLimits);
+    ui.rowsInput.addEventListener('input', syncSizeLimits);
+    ui.colsInput.addEventListener('input', syncSizeLimits);
+
+    ui.mineRange.addEventListener('input', () => {
+      ui.mineLabel.textContent = ui.mineRange.value;
+    });
+
+    /* ---------- 显示模式切换 ---------- */
+    displayTabs.forEach((tab) => {
+      const handler = () => setDisplayMode(+tab.dataset.mode);
+      tab.addEventListener('click', handler);
+      tab.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          handler();
+        }
+      });
+    });
+
+    /* ---------- 预设按钮 ---------- */
+    document.querySelectorAll('[data-preset]').forEach((el) => {
+      el.addEventListener('click', () => applyPreset(el.dataset.preset));
+    });
+
+    /* ---------- 动作按钮 ---------- */
+    document.querySelectorAll('[data-action]').forEach((el) => {
+      el.addEventListener('click', () => {
+        const handler = ACTIONS[el.dataset.action];
+        if (typeof handler === 'function') handler();
+      });
+      if (el.classList.contains('mi')) {
+        el.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            const handler = ACTIONS[el.dataset.action];
+            if (typeof handler === 'function') handler();
+          }
+        });
+      }
+    });
+
+    /* ---------- 弹窗：点击遮罩关闭 ---------- */
+    ui.overlay.addEventListener('click', (e) => {
+      if (e.target === ui.overlay) closeModal();
+    });
+
+    /* ---------- 快捷键 ---------- */
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && ui.overlay.classList.contains('show')) {
+        closeModal();
+      }
+      /* R 键重开（不与输入框冲突时） */
+      if ((e.key === 'r' || e.key === 'R') &&
+          document.activeElement !== ui.rowsInput &&
+          document.activeElement !== ui.colsInput &&
+          document.activeElement !== ui.mineRange &&
+          state.status !== 'idle') {
+        restart();
+      }
+    });
+
+    /* ---------- 窗口失焦时暂停计时器不必要，保持计时 ---------- */
+    /* ---------- 卸载时清理 ---------- */
+    window.addEventListener('beforeunload', stopTimer);
+  }
+
+  /* ============================================================
+     启动
+     ============================================================ */
+
+  bindEvents();
+  syncSizeLimits();
+  showStartScreen();
+
+})();
+</script>
+</body>
+</html>
